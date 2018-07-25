@@ -1,0 +1,4 @@
+<!--components/cComponents/test/index.wxml-->
+<text>
+    引入组件示例
+</text>

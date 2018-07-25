@@ -1,0 +1,1 @@
+<view class="pmit-icon pmit-icon-{{ type }}">icon图标</view>

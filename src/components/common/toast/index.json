@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "pmit-icon": "../icon/index"
+  }
+}

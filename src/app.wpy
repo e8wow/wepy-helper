@@ -1,0 +1,156 @@
+<style lang="scss">
+    .container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+    }
+</style>
+
+<script>
+    import wepy from 'wepy';
+    import 'wepy-async-function';
+
+    import { setStore } from 'wepy-redux';
+    import configStore from './store';
+
+    import request from './utils/api/request.js';
+    import cache from './utils/pmitCache.js';
+    import api from './utils/api/apiPath/index.js'; //请求接口
+
+    const store = configStore();
+    setStore(store);
+
+    export default class extends wepy.app {
+        config = {
+            pages: [
+                'pages/main/login',
+                'pages/main/index'
+            ],
+            subPackages: [
+                {
+                    name: '电商模块',
+                    root: 'pages/commerce-package',
+                    pages: [
+                        'index'
+                    ]
+                },
+                {
+                    name: '企业模块',
+                    root: 'pages/minisite-package',
+                    pages: [
+                        'index'
+                    ]
+                }
+            ],
+            window: {
+                backgroundTextStyle: 'light',
+                navigationBarBackgroundColor: '#fff',
+                navigationBarTitleText: 'WeChat',
+                navigationBarTextStyle: 'black'
+            }
+        };
+
+        globalData = {
+            api
+        };
+
+        constructor() {
+            super();
+            this.post = request.post;
+            this.cache = cache;
+        }
+
+        onLaunch() {
+        }
+
+        onShow() {
+            let that = this;
+            wepy.getSystemInfo({
+                success: res => {
+                    // console.log('手机信息res'+res.model)
+                    let modelmes = res.model;
+                    console.log(modelmes);
+                    if (modelmes.search('iPhone X') != -1) {
+                        that.globalData.isIphoneX = true;
+                    }
+                }
+            });
+        }
+
+        alertShow(that, iconType, alertLable, time = 1500) {
+            that.setData({
+                isAlert: true,
+                iconType,
+                alertLable
+            });
+            setTimeout(e => {
+                that.setData({
+                    isAlert: false
+                });
+            }, time);
+        }
+    }
+</script>
+
+<style lang="scss">
+    @import './styles/base';
+    @import './styles/icons/index';
+
+    .container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        padding: 200px 0;
+        box-sizing: border-box;
+    }
+
+    /* 重置button样式 */
+    button {
+        padding: 0;
+        background: #fff;
+        line-height: 0;
+    }
+
+    button::after {
+        border-color: transparent;
+    }
+
+    .button-hover {
+        background: #fff;
+    }
+
+    /* //字体规范 */
+    .font-size-small-s {
+        font-size: 20px;
+    }
+
+    .font-size-small {
+        font-size: 24px;
+    }
+
+    .font-size-medium {
+        font-size: 28px;
+    }
+
+    .font-size-medium-x {
+        font-size: 32px;
+    }
+
+    .font-size-large {
+        font-size: 36px;
+    }
+
+    .font-size-large-x {
+        font-size: 44px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+</style>

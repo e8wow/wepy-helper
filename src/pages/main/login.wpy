@@ -1,0 +1,314 @@
+<template>
+    <view class="login-wrap">
+        <view class="login-wrap-title">
+            轻易达小程序助手
+        </view>
+        <view class="login-wrap-body">
+            <block wx:if="{{config.type === 'password'}}">
+                <view style="width: 100%;">
+                    <input-wrap :errorMsg="passModel.username.errorMsg">
+                        <i class="pmit icon-account login-icon" slot="before"></i>
+                        <input class="login-input"
+                               value="{{passModel.username.value}}"
+                               maxlength="32"
+                               placeholder="请输入账号"/>
+                    </input-wrap>
+                    <input-wrap :errorMsg="passModel.password.errorMsg">
+                        <i class="pmit icon-account login-icon" slot="before"></i>
+                        <input class="login-input"
+                               password
+                               value="{{passModel.password.value}}"
+                               maxlength="32"
+                               placeholder="请输入密码"/>
+                    </input-wrap>
+                    <input-wrap :errorMsg="passModel.verifyCode.errorMsg">
+                        <i class="pmit icon-account login-icon" slot="before"></i>
+                        <input class="login-input"
+                               maxlength="4"
+                               value="{{passModel.verifyCode.value}}"
+                               @input="handleChangeCaptcha"
+                               placeholder="请输入验证码"/>
+                        <image class="captcha" src="{{captcha.captcha}}" mode="widthFix"></image>
+                    </input-wrap>
+                </view>
+            </block>
+            <block wx:else>
+                <view>
+                    <input class="login-phone-input"
+                           type="number"
+                           maxlength="11"
+                           @input="handleSmsPhoneInput"
+                           placeholder="请输入手机号码"/>
+                    <view class="login-phone-tips-wrap">
+                        <text class="login-phone-tips">60S后重新获取</text>
+                    </view>
+                    <view @tap="handleSmsCodeFocus">
+                        <view class="sms-code-block">
+                            <repeat class="item" for="{{smsModel.code.value}}" key="index" item="item">
+                                <text>{{item}}</text>
+                            </repeat>
+                            <repeat class="item" for="{{4 - smsModel.code.value.length}}" key="index" item="item">
+                                <text>-</text>
+                            </repeat>
+                        </view>
+                        <input class="hidden"
+                               type="number"
+                               maxlength="4"
+                               @input="handleSmsInput"
+                               @blur="handleSmsBlur"
+                               focus="{{smsModel.code.focus}}"/>
+                    </view>
+                </view>
+            </block>
+        </view>
+        <view class="login-btn-wrap" @tap="handleLoginTap">
+            <primary-button disabled="{{submit.disable}}"
+            >登录
+            </primary-button>
+        </view>
+        <view class="change-model"
+              @tap="toggleType">
+            <text>{{type ? '账号密码登录' : '忘记密码?'}}</text>
+        </view>
+        <view class="footer">
+            @2018 PMIT.CN 加减信息
+        </view>
+    </view>
+
+</template>
+
+<script lang="typescript">
+    import wepy from 'wepy';
+
+    import md5 from '../../utils/md5';
+
+    import LoginInputItem from '../../components/business/LoginInputItem';
+    import PrimaryButton from '../../components/common/PrimaryButton';
+
+    export default class Login extends wepy.page {
+        config = {
+            navigationBarTitleText: '轻易达小助手',
+            navigationBarBackgroundColor: '#43e0d1',
+            navigationBarTextStyle: '#fff'
+        };
+
+        components = {
+            'primary-button': PrimaryButton,
+            'input-wrap': LoginInputItem
+        };
+
+        data = {
+            config: {
+                type: 'password'
+            }, // 0: 代表用账号密码 1: 免密登录
+            passModel: {
+                username: {
+                    value: '600008',
+                    errorMsg: ''
+                },
+                password: {
+                    value: '123456',
+                    errorMsg: ''
+                },
+                verifyCode: {
+                    value: '',
+                    errorMsg: ''
+                }
+            },
+            smsModel: {
+                phone: {
+                    value: ''
+                },
+                code: {
+                    focus: false,
+                    value: ''
+                }
+            },
+            submit: {
+                disable: true,
+                loading: false
+            },
+            captcha: {
+                captcha: '',
+                captchaId: ''
+            }
+        };
+
+        computed = {};
+
+        private onLoad() {
+            this.$parent.post(this.$parent.globalData.api.common.getCaptchaImage).then(res => {
+                this.data.captcha.captcha = res.captcha;
+                this.data.captcha.captchaId = res.captchaId;
+                this.$apply();
+            }).then(error => {
+                // TODO 获取图片验证码错误处理
+            });
+        }
+
+        events = {};
+
+        methods = {
+            /**
+             * 登录点击事件
+             * @param event
+             */
+            handleLoginTap(event) {
+                // this.checkForm()
+                console.log(1);
+                this.$parent.post(this.$parent.globalData.api.common.login, 'POST', {
+                    account: this.data.passModel.username.value,
+                    password: md5(this.data.passModel.password.value),
+                    imageCaptcha: this.data.passModel.verifyCode.value,
+                    imageCaptchaId: this.data.captcha.captchaId
+                }).then((res) => {
+                    wepy.setStorage({ key: 'userInfo', data: res });
+                    wepy.navigateTo({
+                        url: '/pages/main/index'
+                    });
+                    // TODO 登录成功后的逻辑
+                }).catch(error => {
+                    // TODO 登录报错处理
+                    console.log(error);
+                });
+            },
+            handleChangeCaptcha(event) {
+                this.data.passModel.verifyCode.value = event.detail.value;
+            },
+            handleSmsPhoneInput(event) {
+                this.data.smsModel.phone.value = event.detail.value;
+            },
+            handleSmsInput(event) {
+                this.data.smsModel.code.value = event.detail.value;
+            },
+            handleSmsCodeFocus(event) {
+                this.data.smsModel.code.focus = true;
+            },
+            handleSmsBlur(event) {
+                this.data.smsModel.code.focus = false;
+            },
+            toggleType() {
+                this.data.config.type = this.data.config.type === 'password' ? 'sms' : 'password';
+            },
+            checkForm() {
+                if (this.data.type === 0) {
+                    if (this.data.passModel.username.value.length === 0) {
+                        this.setData({ 'passModel.username.errorMsg': '请输入账号' });
+                    } else {
+                        this.setData({ 'passModel.username.errorMsg': '' });
+                    }
+                    if (this.data.passModel.password.value.length === 0) {
+                        this.setData({ 'passModel.password.errorMsg': '请输入密码' });
+                    } else {
+                        this.setData({ 'passModel.password.errorMsg': '' });
+                    }
+                    if (this.data.passModel.verifyCode.value.length !== 4) {
+                        this.setData({ 'passModel.verifyCode.errorMsg': '请填写4位验证码' });
+                    } else {
+                        this.setData({ 'passModel.verifyCode.errorMsg': '' });
+                    }
+                } else if (this.data.type === 1) {
+
+                }
+            },
+            computedDisabled() {
+                if (this.data.type === 0) {
+                    this.setData({ 'submit.disable': !(this.data.passModel.username && this.data.passModel.password && this.data.passModel.verifyCode.length === 4) });
+                } else if (this.data.type === 1) {
+                    this.setData({ 'submit.disable': !(this.data.smsModel.phone.value.length === 11 && this.data.smsModel.code.value.length === 4) });
+                }
+            }
+        };
+    }
+</script>
+
+<style lang="scss">
+    @import "../../styles/base";
+
+    .login-wrap {
+        display: flex;
+        flex-flow: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: $font-color-gary-2;
+        width: 100%;
+        &-title {
+            font-size: 48px;
+        }
+        &-body {
+            margin: 100px 0 0;
+            width: 550px;
+            flex: 0 0 400px;
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+        }
+        .login-icon {
+            font-size: 33px;
+        }
+    }
+
+    .captcha {
+        width: 200px;
+    }
+
+    .change-model {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 26px;
+        color: $font-color-gary-2;
+    }
+
+    .login-input {
+        padding: 10px 20px;
+        font-size: 33px;
+    }
+
+    .login-btn-wrap {
+        margin-top: 60px;
+        color: $font-color-primary;
+        width: 550px;
+    }
+
+    .footer {
+        position: absolute;
+        bottom: 30px;
+        font-size: $font-size-min;
+    }
+
+    .login-phone {
+        &-input {
+            width: 280px;
+            height: 35px;
+            padding: 15px 80px;
+            text-align: center;
+            border-bottom: 1px solid $border-color-2;
+            font-size: $font-size-md;
+            color: $font-color-primary;
+        }
+        &-tips-wrap {
+            text-align: center;
+        }
+        &-tips {
+            color: $primary-color;
+            font-size: 26px;
+            margin-top: 15px;
+        }
+    }
+
+    .sms-code {
+        &-block {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 45px;
+            text {
+                flex: 1;
+                display: flex;
+                justify-content: space-around;
+                font-size: 68px;
+                color: $primary-color;
+            }
+        }
+    }
+</style>

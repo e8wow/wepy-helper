@@ -1,0 +1,70 @@
+<template>
+    <button class="primary-btn {{disabled ? 'disabled' : ''}}" type="default">
+        <view class="primary-btn-content">
+            <slot></slot>
+        </view>
+    </button>
+</template>
+
+<script>
+    import wepy from 'wepy';
+
+    export default class PrimaryButton extends wepy.component {
+        props = {
+            disabled: {
+                type: Boolean,
+                value: false
+            }
+        };
+    }
+</script>
+
+<style lang="scss">
+    @import "../../styles/base";
+
+    .primary-btn {
+        $gradient: linear-gradient(208deg, $primary-color-blue 0%, $primary-color-green 98%);
+        $border-radius: 100px;
+        $height: 80px;
+
+        overflow: visible;
+        height: $height;
+        line-height: $height;
+        background: transparent;
+        position: relative;
+        border-radius: $border-radius;
+        &:hover {
+            background: transparent;
+        }
+        &:active::before {
+            transform: scale(1.03, 1.2);
+        }
+        &::before {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            border-radius: $border-radius;
+            background-image: $gradient;
+            opacity: .4;
+            transition: transform 300ms ease-in-out;
+        }
+        &-content {
+            position: relative;
+            background-image: $gradient;
+            border-radius: $border-radius;
+            color: #fff;
+            z-index: 10;
+        }
+        &.disabled &-content {
+            opacity: .6;
+        }
+        &.disabled:active::before {
+            transform: scale(1, 1);
+        }
+    }
+
+</style>

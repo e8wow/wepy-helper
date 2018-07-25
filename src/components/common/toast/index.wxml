@@ -1,0 +1,13 @@
+<view class="pmit-toast {{ !message ? 'pmit-toast--notitle' : '' }}" wx:if="{{ show }}" bindtap="clearpmitToast">
+  <!-- icon 展示 -->
+  <block wx:if="{{ icon || image }}">
+    <view wx:if="{{ image }}" class="pmit-toast__icon pmit-toast__icon-image" style="background-image: url({{ image }});"></view>
+    <view wx:elif="{{ icon === 'loading' }}" class="pmit-toast__icon pmit-toast__icon-loading">
+      <view class="pmit-loading"></view>
+    </view>
+    <pmit-icon wx:else type="{{ icon }}" class="pmit-toast__icon"></pmit-icon>
+  </block>
+
+  <!-- 文案展示 -->
+  <view wx:if="{{ message }}">{{ message }}</view>
+</view>

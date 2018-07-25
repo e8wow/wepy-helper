@@ -1,0 +1,359 @@
+<template>
+    <view class="containers pmit">
+        <view class="user-container">
+            <view class="user-info">
+                <view class="imges-user">
+                    <open-data type="userAvatarUrl" class="user-img"></open-data>
+                </view>
+                <view class="user-txt">
+                    <view class="user-tit">广州市加减健身房</view>
+                    <view class="user-id">600765</view>
+                </view>
+                <text class="user-details">></text>
+            </view>
+
+            <picker @change="bindPickerChange" value="{{index}}" range="{{projectArray}}" mode="selector">
+                <view class="items" @tap="selectItem">
+                    <text class="txt">当前项目</text>
+                    <text class="current">{{projectArray[index]}}▼</text>
+                </view>
+            </picker>
+
+        </view>
+
+
+        <view class="statistics">
+            <view class="nav">
+                <text data-type='user' @tap="setNavCur" :class="{cur: type === 'user'}">用户</text>
+                <text data-type='income' @tap="setNavCur" :class="{cur: type === 'income'}">收入</text>
+                <text data-type='order' @tap="setNavCur" :class="{cur: type === 'order'}">订单</text>
+                <text data-type='forms' @tap="setNavCur" :class="{cur: type === 'forms'}">表单</text>
+            </view>
+
+            <view class="content">
+                <view class="datum">
+                    <text class="num">{{mapStatisticsNum.sum}}</text>
+                    {{mapStatisticsNum.Units}}
+                </view>
+
+                <view class="info" :class="{order:type === 'order'}">
+                    <block wx:if="{{type !== 'order'}}">
+                        <view class="lf-box min-box">{{mapStatisticsNum.leftTxt}}</view>
+                        <view class="rf-box min-box">{{mapStatisticsNum.newSum + mapStatisticsNum.Units}}</view>
+                    </block>
+
+                    <block wx:if="{{type === 'order'}}">
+                        <view class="lf-box min-box">
+                            <view class="sum">{{mapStatisticsNum.leftNewSum}}</view>
+                            待发货
+                        </view>
+                        <view class="rf-box min-box">
+                            <view>{{mapStatisticsNum.rightNewSum}}</view>
+                            退货退款
+                        </view>
+                    </block>
+                </view>
+            </view>
+        </view>
+
+
+        <view class="functional-module">
+            <repeat class="item" for="6" key="index">
+                <view class="module" @tap="goModule">
+                    <view class="icon-box">
+                        <pmit-icon></pmit-icon>
+                    </view>
+                    核销工具
+                </view>
+            </repeat>
+        </view>
+    </view>
+</template>
+
+<script lang="typescript">
+    import wepy from 'wepy';
+
+    const statisticsNum = {
+        user: {
+            sum: 3687,
+            Units: '人',
+            leftTxt: '昨日新增',
+            newSum: 182
+        },
+        income: {
+            sum: '1,860.02',
+            Units: '元',
+            leftTxt: '今日收入',
+            newSum: '9,455,00'
+        },
+        order: {
+            sum: 9067,
+            Units: '笔',
+            leftNewSum: 182,
+            rightNewSum: 20
+        },
+        forms: {
+            sum: 630,
+            Units: '笔',
+            leftTxt: '待核验',
+            newSum: 30
+        }
+    };
+    export default class Index extends wepy.page {
+        config = {
+            navigationBarTitleText: '轻易达小助手',
+            navigationBarBackgroundColor: '#43e0d1',
+            navigationBarTextStyle: '#fff'
+        };
+
+        data = {
+            // 当前用户拥有的项目
+            projectArray: [
+                '轻电商版（1）',
+                '轻电商版（2）',
+                '轻电商版（3）',
+                '轻电商版（4）',
+                '轻电商版（5）',
+                '轻电商版（6）'
+            ],
+            index: 0, // 当前选择项目的下标
+            type: 'user' // 当前显示的类型
+        };
+
+        computed = {
+            mapStatisticsNum() {
+                return statisticsNum[this.data.type];
+            }
+        };
+
+        private onLoad() {
+        }
+
+        methods = {
+            bindPickerChange(e) {
+                console.log('picker发送选择改变，携带值为', e.detail.value);
+                this.setData({
+                    index: e.detail.value
+                });
+            },
+            setNavCur(event) {
+                console.log(statisticsNum[event.currentTarget.dataset.type])
+                if (event) {
+                    this.data.type = event.currentTarget.dataset.type;
+                }
+            },
+            selectItem() {
+            },
+            goModule() {
+            }
+        };
+    }
+</script>
+
+<style lang="scss">
+    /**index.wxss**/
+    .containers {
+        width: 100vw;
+        background: #ffffff;
+        .user-container {
+            width: 100vw;
+            height: 400px;
+            background: #43e0d1;
+            background-image: linear-gradient(-229deg, #92fe9d 0%, #00c9ff 100%);
+            padding-top: 60px;
+            box-sizing: border-box;
+            color: #fff;
+            border-radius: 0 0 50px 50px;
+            .user-info {
+                width: 100vw;
+                padding: 0 30px 0 60px;
+                box-sizing: border-box;
+                display: flex;
+                position: relative;
+                margin-bottom: 32px;
+
+                .imges-user {
+                    width: 131px;
+                    height: 131px;
+                    overflow: hidden;
+                    border-radius: 50%;
+                    margin-right: 40px;
+
+                    .user-img {
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+
+                .user-txt {
+                    padding-top: 20px;
+                    box-sizing: border-box;
+                    line-height: 50px;
+
+                    .user-tit {
+                        font: 600 36px "PingFangSC-Medium";
+                    }
+
+                    .user-id {
+                        font: 30px "PingFangSC-Medium";
+                    }
+                }
+
+                .user-details {
+                    font-size: 60px;
+                    position: absolute;
+                    right: 24px;
+                    top: 0px;
+                }
+            }
+
+            .items {
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid #ffffff;
+                border-radius: 100px;
+                width: 400px;
+                height: 54px;
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .txt {
+                    font-size: 26px;
+                    flex: 4;
+                    text-align: center;
+                }
+
+                .current {
+                    font-size: 30px;
+                    flex: 8;
+                    white-space: nowrap;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+            }
+        }
+
+        .statistics {
+            width: 690px;
+            height: 404px;
+            position: relative;
+            top: -50rpx;
+            margin: 0 auto;
+            border-radius: 20px;
+            background: #fff;
+            box-shadow: 0 0 0 5px rgba(153, 151, 151, 0.3);
+            padding: 30px 0;
+
+            .nav {
+                display: flex;
+
+                > text {
+                    width: 24%;
+                    text-align: center;
+                    display: inline-block;
+                    border-right: 1px solid #b2b2b2;
+                    font-size: 30px;
+                    color: #b2b2b2;
+                    letter-spacing: 0;
+                    text-align: center;
+
+                    &:nth-last-of-type(1) {
+                        border: 0;
+                    }
+
+                    &.cur {
+                        color: #333;
+                    }
+                }
+            }
+
+            .content {
+                text-align: center;
+                width: 100%;
+                margin-top: 80px;
+
+                .datum {
+                    color: #000;
+                    font-size: 30px;
+                    margin-bottom: 80px;
+
+                    .num {
+                        font-size: 90px;
+                        font-weight: 600;
+                    }
+                }
+
+                .info {
+                    display: flex;
+                    width: 100%;
+                    color: #b2b2b2;
+
+                    view {
+                        flex: 5;
+                        box-sizing: border-box;
+
+                        &.lf-box {
+                            border-right: 1px solid #b2b2b2;
+                            text-align: right;
+                            padding-right: 40px;
+                        }
+
+                        &.rf-box {
+                            text-align: left;
+                            padding-left: 40px;
+                            color: #35eda6;
+                        }
+                    }
+
+                    &.order {
+                        padding: 0;
+                        text-align: center;
+
+                        .min-box {
+                            padding: 0;
+                            text-align: center;
+                        }
+                    }
+                }
+            }
+        }
+
+        .functional-module {
+            margin-top: 84px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+
+            .item {
+                flex: 4;
+                min-width: 33%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 30px;
+
+                .module {
+                    width: 110px;
+                    font-size: 24px;
+                    color: #333333;
+                    text-align: center;
+                    .icon-box {
+                        background: #f3f3f3;
+                        width: 110px;
+                        height: 110px;
+                        border-radius: 100%;
+                        overflow: hidden;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin-bottom: 12px;
+                    }
+                }
+            }
+        }
+    }
+
+</style>
