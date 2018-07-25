@@ -1,15 +1,15 @@
 {
-    "description": "helper",
-    "setting": {
-        "urlCheck": true,
-        "es6": false,
-        "postcss": false,
-        "minified": false,
-        "newFeature": true
-    },
-    "compileType": "miniprogram",
-    "appid": "wx3f5e5e05cd8b313b",
-    "projectname": "wepy-helper",
-    "miniprogramRoot": "./dist",
-    "condition": {}
+	"description": "helper",
+	"setting": {
+		"urlCheck": true,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true
+	},
+	"compileType": "miniprogram",
+	"appid": "wx3f5e5e05cd8b313b",
+	"projectname": "wepy-helper",
+	"miniprogramRoot": "./dist",
+	"condition": {}
 }
